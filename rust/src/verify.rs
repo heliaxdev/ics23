@@ -33,13 +33,12 @@ pub fn verify_non_existence(
     root: &[u8],
     key: &[u8],
 ) -> Result<()> {
+    ensure!(proof.key == key, "Provided key doesn't match proof");
     if let Some(left) = &proof.left {
         verify_existence(left, spec, root, &left.key, &left.value)?;
-        ensure!(key > left.key.as_slice(), "left key isn't before key");
     }
     if let Some(right) = &proof.right {
         verify_existence(right, spec, root, &right.key, &right.value)?;
-        ensure!(key < right.key.as_slice(), "right key isn't after key");
     }
 
     if let Some(inner) = &spec.inner_spec {
