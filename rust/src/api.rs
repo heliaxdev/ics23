@@ -30,8 +30,13 @@ pub fn verify_membership(
 
     //    if let Some(ics23::commitment_proof::Proof::Exist(ex)) = &proof.proof {
     if let Some(ex) = get_exist_proof(proof, key) {
-        let valid = verify_existence(ex, spec, root, key, value);
-        valid.is_ok()
+        match verify_existence(ex, spec, root, key, value) {
+            Ok(_) => true,
+            Err(e) => {
+                println!("{}", e);
+                false
+            }
+        }
     } else {
         false
     }
@@ -58,8 +63,13 @@ pub fn verify_non_membership(
     }
 
     if let Some(non) = get_nonexist_proof(proof, key) {
-        let valid = verify_non_existence(non, spec, root, key);
-        valid.is_ok()
+        match verify_non_existence(non, spec, root, key) {
+            Ok(_) => true,
+            Err(e) => {
+                println!("{}", e);
+                false
+            }
+        }
     } else {
         false
     }
