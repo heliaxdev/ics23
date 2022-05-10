@@ -32,7 +32,7 @@ fn prepare_leaf_data(prehash: HashOp, length: LengthOp, data: &[u8]) -> Result<H
     do_length(length, &h)
 }
 
-fn do_hash(hash: HashOp, data: &[u8]) -> Hash {
+pub fn do_hash(hash: HashOp, data: &[u8]) -> Hash {
     match hash {
         HashOp::NoHash => Hash::from(data),
         HashOp::Sha256 => Hash::from(Sha256::digest(data).as_slice()),

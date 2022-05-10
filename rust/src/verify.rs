@@ -5,7 +5,7 @@ use anyhow::{bail, ensure};
 
 use crate::helpers::Result;
 use crate::ics23;
-use crate::ops::{apply_inner, apply_leaf};
+use crate::ops::{apply_inner, apply_leaf, do_hash};
 use alloc::format;
 use std::vec::Vec;
 
@@ -19,8 +19,16 @@ pub fn verify_existence(
     value: &[u8],
 ) -> Result<()> {
     check_existence_spec(proof, spec)?;
-    ensure!(proof.key == key, "Provided key doesn't match proof");
-    ensure!(proof.value == value, "Provided value doesn't match proof");
+    let key_hash_op = spec.leaf_spec.clone().expect("already checked").hash();
+    ensure!(
+        proof.key == key || proof.key == do_hash(key_hash_op, key),
+        "Provided key doesn't match proof"
+    );
+    let value_hash_op = spec.leaf_spec.clone().expect("already checked").hash();
+    ensure!(
+        proof.value == value || proof.key == do_hash(value_hash_op, key),
+        "Provided value doesn't match proof"
+    );
 
     let calc = calculate_existence_root(proof)?;
     ensure!(calc == root, "Root hash doesn't match");
@@ -33,13 +41,20 @@ pub fn verify_non_existence(
     root: &[u8],
     key: &[u8],
 ) -> Result<()> {
+    let key_hash_op = spec.leaf_spec.clone().expect("already checked").hash();
     if let Some(left) = &proof.left {
         verify_existence(left, spec, root, &left.key, &left.value)?;
-        ensure!(key > left.key.as_slice(), "left key isn't before key");
+        ensure!(
+            key > left.key.as_slice() || do_hash(key_hash_op, key) > left.key,
+            "left key isn't before key"
+        );
     }
     if let Some(right) = &proof.right {
         verify_existence(right, spec, root, &right.key, &right.value)?;
-        ensure!(key < right.key.as_slice(), "right key isn't after key");
+        ensure!(
+            key < right.key.as_slice() || do_hash(key_hash_op, key) < right.key,
+            "left key isn't before key"
+        );
     }
 
     if let Some(inner) = &spec.inner_spec {
