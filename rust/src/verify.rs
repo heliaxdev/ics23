@@ -26,7 +26,7 @@ pub fn verify_existence(
     );
     let value_hash_op = spec.leaf_spec.clone().expect("already checked").hash();
     ensure!(
-        proof.value == value || proof.key == do_hash(value_hash_op, key),
+        proof.value == value || proof.value == do_hash(value_hash_op, value),
         "Provided value doesn't match proof"
     );
 
