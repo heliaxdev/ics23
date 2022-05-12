@@ -134,10 +134,7 @@ func CombineProofs(proofs []*CommitmentProof) (*CommitmentProof, error) {
 func getExistProofForKey(proof *CommitmentProof, key []byte) *ExistenceProof {
 	switch p := proof.Proof.(type) {
 	case *CommitmentProof_Exist:
-		ep := p.Exist
-		if bytes.Equal(ep.Key, key) {
-			return ep
-		}
+		return p.Exist
 	case *CommitmentProof_Batch:
 		for _, sub := range p.Batch.Entries {
 			if ep := sub.GetExist(); ep != nil && bytes.Equal(ep.Key, key) {
