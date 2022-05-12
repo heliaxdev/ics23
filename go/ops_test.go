@@ -50,7 +50,7 @@ func TestDoHash(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			res, err := doHash(tc.HashOp, []byte(tc.Preimage))
+			res, err := DoHash(tc.HashOp, []byte(tc.Preimage))
 			if err != nil {
 				t.Fatal(err)
 			}
