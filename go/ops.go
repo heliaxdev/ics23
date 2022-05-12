@@ -34,7 +34,7 @@ func (op *LeafOp) Apply(key []byte, value []byte) ([]byte, error) {
 	}
 	data := append(op.Prefix, pkey...)
 	data = append(data, pvalue...)
-	return doHash(op.Hash, data)
+	return DoHash(op.Hash, data)
 }
 
 // CheckAgainstSpec will verify the LeafOp is in the format defined in spec
@@ -66,7 +66,7 @@ func (op *InnerOp) Apply(child []byte) ([]byte, error) {
 	}
 	preimage := append(op.Prefix, child...)
 	preimage = append(preimage, op.Suffix...)
-	return doHash(op.Hash, preimage)
+	return DoHash(op.Hash, preimage)
 }
 
 // CheckAgainstSpec will verify the InnerOp is in the format defined in spec
@@ -100,17 +100,17 @@ func prepareLeafData(hashOp HashOp, lengthOp LengthOp, data []byte) ([]byte, err
 }
 
 // doHashOrNoop will return the preimage untouched if hashOp == NONE,
-// otherwise, perform doHash
+// otherwise, perform DoHash
 func doHashOrNoop(hashOp HashOp, preimage []byte) ([]byte, error) {
 	if hashOp == HashOp_NO_HASH {
 		return preimage, nil
 	}
-	return doHash(hashOp, preimage)
+	return DoHash(hashOp, preimage)
 }
 
-// doHash will preform the specified hash on the preimage.
+// DoHash will preform the specified hash on the preimage.
 // if hashOp == NONE, it will return an error (use doHashOrNoop if you want different behavior)
-func doHash(hashOp HashOp, preimage []byte) ([]byte, error) {
+func DoHash(hashOp HashOp, preimage []byte) ([]byte, error) {
 	switch hashOp {
 	case HashOp_SHA256:
 		hash := crypto.SHA256.New()

@@ -78,10 +78,22 @@ func (p *ExistenceProof) Verify(spec *ProofSpec, root CommitmentRoot, key []byte
 	}
 
 	if !bytes.Equal(key, p.Key) {
-		return errors.Errorf("Provided key doesn't match proof")
+		hashed_key, err := DoHash(spec.LeafSpec.Hash, key)
+		if err != nil {
+			return errors.Wrap(err, "Error calculating hash")
+		}
+		if !bytes.Equal(hashed_key, p.Key) {
+			return errors.Errorf("Provided key doesn't match proof")
+		}
 	}
 	if !bytes.Equal(value, p.Value) {
-		return errors.Errorf("Provided value doesn't match proof")
+		hashed_value, err := DoHash(spec.LeafSpec.Hash, value)
+		if err != nil {
+			return errors.Wrap(err, "Error calculating hash")
+		}
+		if !bytes.Equal(hashed_value, p.Value) {
+			return errors.Errorf("Provided value doesn't match proof")
+		}
 	}
 
 	calc, err := p.Calculate()
@@ -183,13 +195,17 @@ func (p *NonExistenceProof) Verify(spec *ProofSpec, root CommitmentRoot, key []b
 	}
 
 	// Ensure in valid range
+	hashed_key, err := DoHash(spec.LeafSpec.Hash, key)
+	if err != nil {
+		return errors.Wrap(err, "Error calculating hash")
+	}
 	if rightKey != nil {
-		if bytes.Compare(key, rightKey) >= 0 {
+		if bytes.Compare(key, rightKey) >= 0 && bytes.Compare(hashed_key, rightKey) >= 0 {
 			return errors.New("key is not left of right proof")
 		}
 	}
 	if leftKey != nil {
-		if bytes.Compare(key, leftKey) <= 0 {
+		if bytes.Compare(key, leftKey) <= 0 && bytes.Compare(hashed_key, leftKey) <= 0 {
 			return errors.New("key is not right of left proof")
 		}
 	}

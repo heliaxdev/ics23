@@ -222,7 +222,7 @@ func TestDoHash(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			res, err := doHash(tc.hashOp, []byte(tc.preimage))
+			res, err := DoHash(tc.hashOp, []byte(tc.preimage))
 			if err != nil {
 				t.Fatal(err)
 			}
