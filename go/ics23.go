@@ -148,10 +148,7 @@ func getExistProofForKey(proof *CommitmentProof, key []byte) *ExistenceProof {
 func getNonExistProofForKey(proof *CommitmentProof, key []byte) *NonExistenceProof {
 	switch p := proof.Proof.(type) {
 	case *CommitmentProof_Nonexist:
-		np := p.Nonexist
-		if isLeft(np.Left, key) && isRight(np.Right, key) {
-			return np
-		}
+		return p.Nonexist
 	case *CommitmentProof_Batch:
 		for _, sub := range p.Batch.Entries {
 			if np := sub.GetNonexist(); np != nil && isLeft(np.Left, key) && isRight(np.Right, key) {
